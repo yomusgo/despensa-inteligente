@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Despensa inteligente</title>
+<style>
+:root{--bg:#f5f5f1;--card:#fff;--ink:#20251f;--muted:#687168;--line:#e2e6de;--green:#2d674a;--green2:#e7f1e9;--orange:#a95b24;--red:#a33d3d;--shadow:0 8px 24px #20251f0a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font-weight:650;background:var(--green);color:white}button.secondary{background:#eef1eb;color:var(--ink);border:1px solid var(--line)}button.danger{background:#fff0ee;color:var(--red);border:1px solid #f0d4d0}button.small{padding:6px 9px;font-size:13px}
+header{background:#1f3b2c;color:white;padding:25px max(18px,calc((100% - 1120px)/2)) 20px}
+.header-inner{max-width:1120px;margin:auto}header .eyebrow{color:#c3d7c7;text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:800}h1{font-size:clamp(27px,4vw,38px);margin:5px 0 4px;letter-spacing:-.04em}header p{margin:0;color:#d9e5da;max-width:650px}
+main{max-width:1120px;margin:0 auto;padding:20px 16px 48px}.tabs{display:flex;gap:8px;overflow:auto;padding:3px 0 14px}.tab{white-space:nowrap;background:transparent;color:var(--muted);border:1px solid transparent}.tab.active{background:var(--green2);color:var(--green);border-color:#c9ddce}
+.meal-tabs{display:flex;gap:8px;overflow:auto;padding:0 0 14px}.meal-tab{white-space:nowrap;background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:10px 15px}.meal-tab.active{font-weight:800}
+#view-menu.theme-breakfast{--meal-bg:#fff2c9;--meal-ink:#8b4a12;--meal-line:#f3c46a;--meal-accent:#e97824}
+#view-menu.theme-lunch{--meal-bg:#e1f3df;--meal-ink:#17643b;--meal-line:#a9d8a9;--meal-accent:#27824b}
+#view-menu.theme-dinner{--meal-bg:#dff3fc;--meal-ink:#145a82;--meal-line:#9bd9f1;--meal-accent:#159ed0}
+#view-menu.theme-snack{--meal-bg:#fde5f1;--meal-ink:#982d68;--meal-line:#f3b5d4;--meal-accent:#dc4f99}
+#view-menu.theme-breakfast .meal-tab.active,#view-menu.theme-lunch .meal-tab.active,#view-menu.theme-dinner .meal-tab.active,#view-menu.theme-snack .meal-tab.active{background:var(--meal-bg);color:var(--meal-ink);border-color:var(--meal-line)}
+#view-menu .panel:first-of-type{border-top:4px solid var(--meal-accent)}
+.meal-theme-label{display:inline-flex;align-items:center;gap:7px;color:var(--meal-ink);font-weight:800}
+.day-checks{display:flex;flex-wrap:wrap;gap:8px}
+.day-check{display:inline-flex;align-items:center;gap:6px;background:#f5f6f2;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px}
+.day-check input{width:auto;accent-color:var(--meal-accent)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:6px 0 18px}.stat,.panel,.recipe-card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.stat{padding:15px}.stat small{display:block;color:var(--muted)}.stat strong{font-size:25px;letter-spacing:-.04em}
+.panel{padding:18px;margin-bottom:14px}.panel h2{font-size:19px;margin:0 0 12px;letter-spacing:-.02em}.panel h3{font-size:15px;margin:0 0 8px}.muted{color:var(--muted)}.tiny{font-size:12px;color:var(--muted)}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field label{font-size:12px;font-weight:750;color:var(--muted)}input,select,textarea{width:100%;padding:10px 11px;border:1px solid #d9dfd6;border-radius:10px;background:#fff;color:var(--ink);outline:none}input:focus,select:focus,textarea:focus{border-color:#6d9d7b;box-shadow:0 0 0 3px #6d9d7b20}textarea{min-height:100px;resize:vertical}.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.recipe-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.recipe-card{padding:15px}.pill{display:inline-flex;background:#f0f2ed;border-radius:999px;padding:4px 8px;color:#526052;font-size:11px;font-weight:750}.recipe-card h3{margin:9px 0 3px;font-size:17px}.recipe-card ul{padding-left:18px;color:var(--muted);font-size:13px}.recipe-card .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.day-group{border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}.day-head{background:#f2f4ef;padding:10px 13px;font-weight:800}.menu-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 13px;border-top:1px solid var(--line)}.menu-item small{display:block;color:var(--muted)}.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed #cbd3c8;border-radius:12px}
+.shopping-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.shopping-row:last-child{border-bottom:0}.shopping-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--green)}.shopping-row.done .item-name{text-decoration:line-through;color:var(--muted)}.qty{font-weight:800;text-align:right;white-space:nowrap}.qty small{display:block;color:var(--muted);font-weight:500}.notice{padding:12px 14px;background:#fff6e9;border:1px solid #f0dfc5;border-radius:11px;color:#775024;font-size:13px;margin-bottom:14px}
+.hidden{display:none!important}.inline-input{max-width:130px}.inventory-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 95px auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.footer{margin-top:22px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:680px){main{padding:14px 12px 36px}.stats{gap:8px}.stat{padding:11px}.stat strong{font-size:21px}.grid2,.grid3,.recipe-list{grid-template-columns:1fr}.inventory-row{grid-template-columns:minmax(0,1fr) 75px 72px auto;gap:5px}.inventory-row input{padding:8px 6px;font-size:13px}.panel{padding:14px}.shopping-row{grid-template-columns:22px minmax(0,1fr) auto}}
+</style>
+</head>
+<body>
+<header><div class="header-inner"><div class="eyebrow">Tu cocina, mejor organizada</div><h1>Despensa inteligente</h1><p>Planea tus comidas, aprovecha lo que ya tienes y compra solo lo que hace falta.</p></div></header>
+<main>
+  <nav class="tabs" aria-label="Secciones">
+    <button class="tab active" data-tab="menu">Menú semanal</button>
+    <button class="tab" data-tab="recipes">Recetas</button>
+    <button class="tab" data-tab="inventory">Inventario</button>
+    <button class="tab" data-tab="shopping">Lista del súper</button>
+    <button class="tab" data-tab="data">Importar / exportar</button>
+  </nav>
+  <section class="stats">
+    <div class="stat"><small>Comidas planeadas</small><strong id="statMeals">0</strong></div>
+    <div class="stat"><small>Recetas guardadas</small><strong id="statRecipes">0</strong></div>
+    <div class="stat"><small>Productos por comprar</small><strong id="statNeed">0</strong></div>
+  </section>
+
+  <section id="view-menu" class="theme-breakfast">
+    <div class="meal-tabs" aria-label="Tipo de comida">
+      <button type="button" class="meal-tab active" data-meal-tab="Desayuno">🍊 Desayuno</button>
+      <button type="button" class="meal-tab" data-meal-tab="Comida">🌿 Comida</button>
+      <button type="button" class="meal-tab" data-meal-tab="Cena">🌙 Cena</button>
+      <button type="button" class="meal-tab" data-meal-tab="Snack">🍬 Snack</button>
+    </div>
+    <div class="panel">
+      <div class="between"><h2>Agregar a <span id="activeMealTitle" class="meal-theme-label">Desayuno</span></h2><span class="pill">2 personas por defecto</span></div>
+      <form id="menuForm">
+        <div class="grid2">
+          <div class="field"><label for="menuRecipe">Receta</label><select id="menuRecipe" required></select></div>
+          <div class="field" style="grid-column:1/-1"><label>¿Qué días quieres este platillo?</label><div class="day-checks" id="menuDays">
+            <label class="day-check"><input type="checkbox" value="Lunes" checked> Lunes</label>
+            <label class="day-check"><input type="checkbox" value="Martes"> Martes</label>
+            <label class="day-check"><input type="checkbox" value="Miércoles"> Miércoles</label>
+            <label class="day-check"><input type="checkbox" value="Jueves"> Jueves</label>
+            <label class="day-check"><input type="checkbox" value="Viernes"> Viernes</label>
+            <label class="day-check"><input type="checkbox" value="Sábado"> Sábado</label>
+            <label class="day-check"><input type="checkbox" value="Domingo"> Domingo</label>
+          </div></div>
+          <div class="field"><label for="menuServings">Porciones por día</label><input id="menuServings" type="number" min="1" max="100" value="2" required></div>
+        </div>
+        <div class="form-actions"><button type="submit">＋ Agregar al menú</button><button type="button" class="secondary" id="clearMenu">Vaciar menú</button></div>
+      </form>
+    </div>
+    <div class="panel"><div class="between"><h2 id="weekSectionTitle">Tu semana · Desayuno</h2><span class="muted tiny">Los ingredientes se recalculan automáticamente</span></div><div id="menuList"></div></div>
+  </section>
+
+  <section id="view-recipes" class="hidden">
+    <div class="panel">
+      <h2 id="recipeFormTitle">Registrar receta</h2>
+      <form id="recipeForm">
+        <input type="hidden" id="recipeId">
+        <div class="grid2">
+          <div class="field"><label for="recipeName">Nombre de la receta</label><input id="recipeName" placeholder="Ej. Tacos de pollo" required></div>
+          <div class="field"><label for="recipeCategory">Categoría</label><select id="recipeCategory"><option>Desayuno</option><option>Comida</option><option>Cena</option><option>Snack</option><option>Guarnición</option></select></div>
+          <div class="field"><label for="recipeServings">Porciones de la receta original</label><input id="recipeServings" type="number" min="1" max="100" value="2" required></div>
+          <div class="field"><label for="recipeInstructions">Preparación (opcional)</label><input id="recipeInstructions" placeholder="Pasos breves o nota"></div>
+        </div>
+        <div class="field" style="margin-top:12px"><label for="recipeIngredients">Ingredientes (uno por línea)</label><textarea id="recipeIngredients" required placeholder="Pollo|300|g|Carnes&#10;Tortillas de maíz|6|pza|Tortillas y pan&#10;Cebolla|0.5|pza|Frutas y verduras"></textarea><div class="tiny">Formato: nombre | cantidad | unidad | categoría. Categoría es opcional. Usa unidades consistentes (g, kg, ml, l, pza, etc.).</div></div>
+        <div class="form-actions"><button type="submit" id="saveRecipeBtn">Guardar receta</button><button type="button" class="secondary" id="cancelEdit">Cancelar edición</button></div>
+      </form>
+    </div>
+    <div class="between" style="margin:18px 0 10px"><h2 style="margin:0">Mis recetas</h2><input id="recipeSearch" style="max-width:250px" placeholder="Buscar receta…"></div>
+    <div id="recipeList" class="recipe-list"></div>
+  </section>
+
+  <section id="view-inventory" class="hidden">
+    <div class="panel">
+      <h2>Actualizar inventario</h2>
+      <p class="muted">Registra lo que tienes en casa. La lista del súper restará estas cantidades de la demanda de tu menú.</p>
+      <form id="inventoryForm">
+        <div class="grid3">
+          <div class="field"><label for="invName">Ingrediente</label><input id="invName" placeholder="Ej. Arroz" required></div>
+          <div class="field"><label for="invQty">Cantidad disponible</label><input id="invQty" type="number" min="0" step="any" placeholder="Ej. 500" required></div>
+          <div class="field"><label for="invUnit">Unidad</label><input id="invUnit" placeholder="g, ml, pza…" required></div>
+        </div>
+        <div class="form-actions"><button type="submit">＋ Guardar existencia</button></div>
+      </form>
+    </div>
+    <div class="panel"><div class="between"><h2>Lo que tengo en casa</h2><button class="secondary small" id="clearInventory">Borrar inventario</button></div><div id="inventoryList"></div></div>
+  </section>
+
+  <section id="view-shopping" class="hidden">
+    <div class="panel">
+      <div class="between"><div><h2>Lista del súper</h2><div class="muted tiny">Calculada a partir de todas las comidas del menú y el inventario actual.</div></div><div class="row"><button class="secondary" id="resetChecks">Desmarcar todo</button><button id="exportShopping">Exportar CSV</button></div></div>
+      <div id="shoppingSummary" class="notice" style="margin-top:14px">Agrega comidas al menú para calcular tu lista.</div>
+      <div id="shoppingList"></div>
+    </div>
+  </section>
+
+  <section id="view-data" class="hidden">
+    <div class="panel">
+      <h2>Respaldo completo</h2><p class="muted">Exporta tus recetas, menú e inventario a un archivo JSON para guardarlo o moverlo a otro dispositivo. Importar un respaldo reemplaza los datos actuales.</p>
+      <div class="form-actions"><button id="exportBackup">Descargar respaldo JSON</button><label class="secondary" style="display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-weight:650;cursor:pointer"><input id="importBackup" type="file" accept=".json,application/json" style="display:none">Importar respaldo JSON</label></div>
+    </div>
+    <div class="panel">
+      <h2>Importar recetas desde CSV</h2>
+      <p class="muted">Usa un CSV con una fila por ingrediente y estas columnas: <code>receta,categoria,porciones,ingrediente,cantidad,unidad,categoria_ingrediente,instrucciones</code>. Puedes exportar desde Excel como CSV UTF-8. La importación agrega recetas; no borra las existentes.</p>
+      <label class="secondary" style="display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-weight:650;cursor:pointer"><input id="importCsv" type="file" accept=".csv,text/csv" style="display:none">Seleccionar archivo CSV</label>
+      <button class="secondary" id="downloadTemplate">Descargar plantilla CSV</button>
+      <div id="importMessage" class="tiny" style="margin-top:10px"></div>
+    </div>
+    <div class="panel">
+      <h2>Datos de ejemplo</h2><p class="muted">La app inicia con algunas recetas sencillas para que puedas probar los cálculos. Puedes editarlas o borrarlas. Los datos se guardan en este navegador mediante almacenamiento local; por ahora no se sincronizan automáticamente entre dispositivos.</p><button class="danger" id="resetDemo">Restablecer datos de ejemplo</button>
+    </div>
+  </section>
+  <div class="footer">Prototipo local · Los datos permanecen en este navegador. Exporta un respaldo para no perderlos.</div>
+</main>
+<script>
+const STORAGE_KEY='despensa-inteligente-v1';
+const days=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const defaultData=()=>({
+ recipes:[
+  {id:'r1',name:'Tacos de pollo',category:'Comida',servings:2,instructions:'Cocina el pollo, calienta las tortillas y sirve con cebolla.',ingredients:[{name:'Pollo',qty:300,unit:'g',category:'Carnes'},{name:'Tortillas de maíz',qty:6,unit:'pza',category:'Tortillas y pan'},{name:'Cebolla',qty:0.5,unit:'pza',category:'Frutas y verduras'},{name:'Limón',qty:2,unit:'pza',category:'Frutas y verduras'}]},
+  {id:'r2',name:'Arroz con verduras',category:'Comida',servings:2,instructions:'Sofríe las verduras, agrega el arroz y cocina hasta que esté suave.',ingredients:[{name:'Arroz',qty:160,unit:'g',category:'Granos y pasta'},{name:'Zanahoria',qty:1,unit:'pza',category:'Frutas y verduras'},{name:'Chícharos',qty:100,unit:'g',category:'Congelados'},{name:'Aceite',qty:15,unit:'ml',category:'Despensa'}]},
+  {id:'r3',name:'Avena con plátano',category:'Desayuno',servings:2,instructions:'Cuece la avena en agua y sirve con plátano en rebanadas.',ingredients:[{name:'Avena',qty:100,unit:'g',category:'Granos y cereales'},{name:'Plátano',qty:2,unit:'pza',category:'Frutas y verduras'},{name:'Canela',qty:2,unit:'g',category:'Especias'}]}
+ ],menu:[],inventory:[]
+});
+let data=loadData();
+let checked={};
+function loadData(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const d=JSON.parse(raw);if(d&&Array.isArray(d.recipes)&&Array.isArray(d.menu)&&Array.isArray(d.inventory))return d;}}catch(e){}return defaultData()}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));render()}
+function id(){return 'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)}
+function norm(s){return String(s||'').trim().toLocaleLowerCase('es-MX')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmt(n){return Number(n.toFixed(3)).toLocaleString('es-MX',{maximumFractionDigits:3})}
+function showTab(tab){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));document.querySelectorAll('[id^=view-]').forEach(s=>s.classList.toggle('hidden',s.id!=='view-'+tab));if(tab==='shopping')renderShopping()}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+function getRecipe(rid){return data.recipes.find(r=>r.id===rid)}
+function aggregateDemand(){
+ const map=new Map();
+ data.menu.forEach(m=>{const r=getRecipe(m.recipeId);if(!r)return;const factor=Number(m.servings||2)/Number(r.servings||1);r.ingredients.forEach(i=>{const key=norm(i.name)+'|'+norm(i.unit);const x=map.get(key)||{name:i.name,unit:i.unit,category:i.category||'Otros',qty:0};x.qty+=Number(i.qty)*factor;map.set(key,x)})});
+ return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
+}
+function getStock(name,unit){return data.inventory.filter(i=>norm(i.name)===norm(name)&&norm(i.unit)===norm(unit)).reduce((s,i)=>s+Number(i.qty||0),0)}
+function getShopping(){return aggregateDemand().map(x=>({...x,stock:getStock(x.name,x.unit),need:Math.max(0,x.qty-getStock(x.name,x.unit))}))}
+function render(){
+ document.getElementById('statMeals').textContent=data.menu.length;
+ document.getElementById('statRecipes').textContent=data.recipes.length;
+ document.getElementById('statNeed').textContent=getShopping().filter(x=>x.need>0).length;
+ renderRecipeSelect();renderMenu();renderRecipes();renderInventory();renderShopping();
+}
+function renderRecipeSelect(){const el=document.getElementById('menuRecipe');const old=el.value;el.innerHTML=data.recipes.length?data.recipes.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join(''):'<option value="">Primero registra una receta</option>';if(data.recipes.some(r=>r.id===old))el.value=old;document.querySelector('#menuForm button[type=submit]').disabled=!data.recipes.length}
+let activeMeal='Desayuno';
+const mealThemes={'Desayuno':'breakfast','Comida':'lunch','Cena':'dinner','Snack':'snack'};
+function setActiveMeal(meal){activeMeal=meal;const view=document.getElementById('view-menu');view.className='theme-'+mealThemes[meal];document.querySelectorAll('[data-meal-tab]').forEach(b=>b.classList.toggle('active',b.dataset.mealTab===meal));document.getElementById('activeMealTitle').textContent=meal;document.getElementById('weekSectionTitle').textContent='Tu semana · '+meal;renderMenu()}
+document.querySelectorAll('[data-meal-tab]').forEach(b=>b.addEventListener('click',()=>setActiveMeal(b.dataset.mealTab)));
+document.getElementById('menuForm').addEventListener('submit',e=>{e.preventDefault();const recipeId=document.getElementById('menuRecipe').value;if(!getRecipe(recipeId))return;const selectedDays=[...document.querySelectorAll('#menuDays input:checked')].map(x=>x.value);if(!selectedDays.length){alert('Selecciona al menos un día.');return}selectedDays.forEach(day=>data.menu.push({id:id(),recipeId,day,meal:activeMeal,servings:Math.max(1,Number(document.getElementById('menuServings').value)||2)}));save()});
+document.getElementById('clearMenu').addEventListener('click',()=>{if(confirm('¿Vaciar todas las comidas del menú?')){data.menu=[];checked={};save()}});
+function renderMenu(){const el=document.getElementById('menuList');const filtered=data.menu.filter(m=>m.meal===activeMeal);if(!filtered.length){el.innerHTML=`<div class="empty">Todavía no hay ${activeMeal.toLocaleLowerCase('es-MX')}s en tu semana. Agrega una receta y selecciona uno o varios días.</div>`;return}
+ const mealOrder={'Desayuno':1,'Comida':2,'Cena':3,'Snack':4};el.innerHTML=days.map(day=>{const items=filtered.filter(m=>m.day===day).sort((a,b)=>(mealOrder[a.meal]||9)-(mealOrder[b.meal]||9));if(!items.length)return '';return `<div class="day-group"><div class="day-head">${day} <span class="tiny">· ${items.length} ${items.length===1?'platillo':'platillos'}</span></div>${items.map(m=>{const r=getRecipe(m.recipeId);return `<div class="menu-item"><div><strong>${esc(r?.name||'Receta eliminada')}</strong><small>${m.servings} porciones</small></div><button class="danger small" data-remove-menu="${esc(m.id)}">Quitar</button></div>`}).join('')}</div>`}).join('')||`<div class="empty">No hay ${activeMeal.toLocaleLowerCase('es-MX')}s en los días seleccionados.</div>`;
+ el.querySelectorAll('[data-remove-menu]').forEach(b=>b.addEventListener('click',()=>{data.menu=data.menu.filter(m=>m.id!==b.dataset.removeMenu);save()}))}
+function parseIngredients(raw){return raw.split(/\r?\n/).map(line=>line.trim()).filter(Boolean).map((line,idx)=>{const p=line.split('|').map(x=>x.trim());if(p.length<3||!p[0]||!Number.isFinite(Number(p[1]))||Number(p[1])<0||!p[2])throw new Error('Revisa la línea '+(idx+1)+': usa nombre | cantidad | unidad | categoría');return{name:p[0],qty:Number(p[1]),unit:p[2],category:p[3]||'Otros'}})}
+function recipeToText(r){return r.ingredients.map(i=>[i.name,i.qty,i.unit,i.category||'Otros'].join(' | ')).join('\n')}
+function resetRecipeForm(){document.getElementById('recipeForm').reset();document.getElementById('recipeId').value='';document.getElementById('recipeServings').value=2;document.getElementById('recipeFormTitle').textContent='Registrar receta';document.getElementById('saveRecipeBtn').textContent='Guardar receta'}
+document.getElementById('recipeForm').addEventListener('submit',e=>{e.preventDefault();let ingredients;try{ingredients=parseIngredients(document.getElementById('recipeIngredients').value)}catch(err){alert(err.message);return}
+ const rid=document.getElementById('recipeId').value;const r={id:rid||id(),name:document.getElementById('recipeName').value.trim(),category:document.getElementById('recipeCategory').value,servings:Math.max(1,Number(document.getElementById('recipeServings').value)||2),instructions:document.getElementById('recipeInstructions').value.trim(),ingredients};
+ if(rid){data.recipes=data.recipes.map(old=>old.id===rid?r:old)}else data.recipes.push(r);resetRecipeForm();save()});
+document.getElementById('cancelEdit').addEventListener('click',resetRecipeForm);
+function renderRecipes(){const q=norm(document.getElementById('recipeSearch').value);const rs=data.recipes.filter(r=>norm(r.name).includes(q)||norm(r.category).includes(q));const el=document.getElementById('recipeList');if(!rs.length){el.innerHTML='<div class="empty">No encontré recetas. Agrega una o cambia la búsqueda.</div>';return}el.innerHTML=rs.map(r=>`<article class="recipe-card"><span class="pill">${esc(r.category)}</span><h3>${esc(r.name)}</h3><div class="tiny">Receta base: ${r.servings} porciones · ${r.ingredients.length} ingredientes</div><ul>${r.ingredients.map(i=>`<li>${esc(i.name)} — ${fmt(i.qty)} ${esc(i.unit)}</li>`).join('')}</ul>${r.instructions?`<p class="tiny">${esc(r.instructions)}</p>`:''}<div class="actions"><button class="small" data-add-recipe="${esc(r.id)}">＋ Al menú</button><button class="secondary small" data-edit-recipe="${esc(r.id)}">Editar</button><button class="danger small" data-delete-recipe="${esc(r.id)}">Borrar</button></div></article>`).join('');
+ el.querySelectorAll('[data-add-recipe]').forEach(b=>b.addEventListener('click',()=>{document.getElementById('menuRecipe').value=b.dataset.addRecipe;document.getElementById('menuServings').value=2;setActiveMeal(getRecipe(b.dataset.addRecipe)?.category==='Desayuno'?'Desayuno':activeMeal);showTab('menu');document.getElementById('menuDays').scrollIntoView({block:'nearest',behavior:'smooth'})}));
+ el.querySelectorAll('[data-edit-recipe]').forEach(b=>b.addEventListener('click',()=>{const r=getRecipe(b.dataset.editRecipe);if(!r)return;document.getElementById('recipeId').value=r.id;document.getElementById('recipeName').value=r.name;document.getElementById('recipeCategory').value=r.category;document.getElementById('recipeServings').value=r.servings;document.getElementById('recipeInstructions').value=r.instructions||'';document.getElementById('recipeIngredients').value=recipeToText(r);document.getElementById('recipeFormTitle').textContent='Editar receta';document.getElementById('saveRecipeBtn').textContent='Guardar cambios';document.getElementById('recipeName').focus();window.scrollTo({top:0,behavior:'smooth'})}));
+ el.querySelectorAll('[data-delete-recipe]').forEach(b=>b.addEventListener('click',()=>{const r=getRecipe(b.dataset.deleteRecipe);if(confirm(`¿Borrar "${r.name}"? También se quitará del menú.`)){data.recipes=data.recipes.filter(x=>x.id!==r.id);data.menu=data.menu.filter(m=>m.recipeId!==r.id);save()}}))}
+document.getElementById('recipeSearch').addEventListener('input',renderRecipes);
+document.getElementById('inventoryForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('invName').value.trim(),unit=document.getElementById('invUnit').value.trim(),qty=Number(document.getElementById('invQty').value);const existing=data.inventory.find(i=>norm(i.name)===norm(name)&&norm(i.unit)===norm(unit));if(existing)existing.qty=qty;else data.inventory.push({id:id(),name,unit,qty});e.target.reset();save()});
+document.getElementById('clearInventory').addEventListener('click',()=>{if(confirm('¿Borrar todas las existencias?')){data.inventory=[];save()}});
+function renderInventory(){const el=document.getElementById('inventoryList');if(!data.inventory.length){el.innerHTML='<div class="empty">Aún no registras existencias. Añade ingredientes arriba.</div>';return}el.innerHTML=data.inventory.map(i=>`<div class="inventory-row"><div><strong>${esc(i.name)}</strong><div class="tiny">${esc(i.unit)}</div></div><input aria-label="Cantidad de ${esc(i.name)}" type="number" min="0" step="any" value="${esc(i.qty)}" data-stock-qty="${esc(i.id)}"><span class="tiny">existencia</span><button class="danger small" data-stock-delete="${esc(i.id)}">×</button></div>`).join('');el.querySelectorAll('[data-stock-qty]').forEach(inp=>inp.addEventListener('change',()=>{const i=data.inventory.find(x=>x.id===inp.dataset.stockQty);if(i){i.qty=Math.max(0,Number(inp.value)||0);save()}}));el.querySelectorAll('[data-stock-delete]').forEach(b=>b.addEventListener('click',()=>{data.inventory=data.inventory.filter(i=>i.id!==b.dataset.stockDelete);save()}))}
+function renderShopping(){const items=getShopping();const el=document.getElementById('shoppingList');const needed=items.filter(x=>x.need>0);document.getElementById('shoppingSummary').textContent=items.length?`${needed.length} productos por comprar · ${items.length-needed.length} ingredientes cubiertos completamente por tu inventario.`:'Agrega comidas al menú para calcular tu lista.';
+ if(!items.length){el.innerHTML='<div class="empty">Tu lista aparecerá aquí cuando planees alguna comida.</div>';return}
+ const groups={};needed.forEach(x=>(groups[x.category||'Otros']??=[]).push(x));const bought=needed.filter(x=>checked[norm(x.name)+'|'+norm(x.unit)]).length;
+ el.innerHTML=(Object.keys(groups).length?Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0],'es')).map(([cat,arr])=>`<div style="margin-top:14px"><h3>${esc(cat)}</h3>${arr.map(x=>{const k=norm(x.name)+'|'+norm(x.unit),done=!!checked[k];return `<label class="shopping-row ${done?'done':''}"><input type="checkbox" data-check="${esc(k)}" ${done?'checked':''}><span><span class="item-name"><strong>${esc(x.name)}</strong></span><small class="muted" style="display:block">Necesitas ${fmt(x.qty)} ${esc(x.unit)} · Tienes ${fmt(x.stock)} ${esc(x.unit)}</small></span><span class="qty">${fmt(x.need)} ${esc(x.unit)}<small>por comprar</small></span></label>`}).join('')}</div>`).join(''):'<div class="empty">¡Todo cubierto! Tu inventario alcanza para las comidas planeadas.</div>')+`<p class="tiny" style="margin-top:14px">${bought} de ${needed.length} productos marcados como comprados. Las marcas son temporales para esta lista y se conservan mientras no cambie la demanda de ese ingrediente.</p>`;
+ el.querySelectorAll('[data-check]').forEach(inp=>inp.addEventListener('change',()=>{checked[inp.dataset.check]=inp.checked;renderShopping()}))}
+document.getElementById('resetChecks').addEventListener('click',()=>{checked={};renderShopping()});
+function download(name,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+document.getElementById('exportBackup').addEventListener('click',()=>download('despensa-respaldo.json',JSON.stringify(data,null,2),'application/json'));
+document.getElementById('importBackup').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.recipes)||!Array.isArray(d.menu)||!Array.isArray(d.inventory))throw new Error('El archivo no parece ser un respaldo válido.');if(confirm('Importar reemplazará recetas, menú e inventario actuales. ¿Continuar?')){data=d;checked={};save();alert('Respaldo importado.')}}catch(err){alert('No se pudo importar: '+err.message)}e.target.value=''});
+function csvParse(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){cell+='"';i++}else if(c==='"')quoted=false;else cell+=c}else{if(c==='"')quoted=true;else if(c===','){row.push(cell);cell=''}else if(c==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}else cell+=c}}if(cell.length||row.length){row.push(cell.replace(/\r$/,''));rows.push(row)}return rows.filter(r=>r.some(v=>v.trim()))}
+document.getElementById('importCsv').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;const msg=document.getElementById('importMessage');try{const rows=csvParse(await f.text());if(rows.length<2)throw new Error('El archivo no tiene filas de datos.');const headers=rows.shift().map(h=>norm(h).replace(/^\uFEFF/,''));const idx=(...names)=>headers.findIndex(h=>names.includes(h));const ir=idx('receta','nombre_receta'),ii=idx('ingrediente','nombre_ingrediente'),iq=idx('cantidad'),iu=idx('unidad');if([ir,ii,iq,iu].some(x=>x<0))throw new Error('Faltan columnas obligatorias: receta, ingrediente, cantidad y unidad.');
+ const grouped=new Map();rows.forEach((r,n)=>{const name=(r[ir]||'').trim(),ing=(r[ii]||'').trim(),qty=Number(r[iq]);if(!name||!ing||!Number.isFinite(qty))return;const key=norm(name);if(!grouped.has(key))grouped.set(key,{id:id(),name,category:r[idx('categoria')]||'Comida',servings:Math.max(1,Number(r[idx('porciones')])||2),instructions:r[idx('instrucciones')]||'',ingredients:[]});grouped.get(key).ingredients.push({name:ing,qty,unit:(r[iu]||'pza').trim(),category:(r[idx('categoria_ingrediente')]||'Otros').trim()})});
+ const incoming=[...grouped.values()];if(!incoming.length)throw new Error('No encontré recetas válidas. Revisa los encabezados y cantidades.');const existing=new Set(data.recipes.map(r=>norm(r.name)));const fresh=incoming.filter(r=>!existing.has(norm(r.name)));if(!fresh.length)throw new Error('Todas las recetas del archivo ya existen.');data.recipes.push(...fresh);save();msg.textContent=`Importadas ${fresh.length} recetas. ${incoming.length-fresh.length} omitidas porque ya existían.`}catch(err){msg.textContent='Error: '+err.message}e.target.value=''});
+function csvCell(v){const s=String(v??'');return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+document.getElementById('exportShopping').addEventListener('click',()=>{const rows=[['ingrediente','cantidad_necesaria','unidad','existencia','cantidad_por_comprar','categoria']];getShopping().filter(x=>x.need>0).forEach(x=>rows.push([x.name,fmt(x.qty),x.unit,fmt(x.stock),fmt(x.need),x.category]));download('lista-del-super.csv','\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n'),'text/csv;charset=utf-8')});
+document.getElementById('downloadTemplate').addEventListener('click',()=>{const rows=[['receta','categoria','porciones','ingrediente','cantidad','unidad','categoria_ingrediente','instrucciones'],['Tacos de pollo','Comida','2','Pollo','300','g','Carnes','Cocinar el pollo'],['Tacos de pollo','Comida','2','Tortillas de maíz','6','pza','Tortillas y pan','Cocinar el pollo']];download('plantilla-recetas.csv','\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n'),'text/csv;charset=utf-8')});
+document.getElementById('resetDemo').addEventListener('click',()=>{if(confirm('Esto borrará los datos de este navegador y restaurará las recetas de ejemplo. ¿Continuar?')){data=defaultData();checked={};resetRecipeForm();save();document.getElementById('importMessage').textContent='Datos de ejemplo restaurados.'}});
+render();setActiveMeal('Desayuno');
+</script>
+</body>
+</html>
